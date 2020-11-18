@@ -25,8 +25,11 @@ def ocr_vehicle(filename):
     message = None
     try:
         message = 'License Plate(s) detected: '
+        initial_str = message
         for car in json_data['photos'][0]['tags']:
             message += car['lp_text_content'] + ', '
+        if message == initial_str:
+            return ''
         message = message[:-2]
     except:
         message = ''
@@ -42,14 +45,15 @@ def process_frames(filename):
     currentframe = 0
     while(True):
         ret, frame = cam.read()
-        if ret: 
-            name = 'frame' + str(currentframe) + '.jpg'
-            print ('Creating...' + name) 
-            cv2.imwrite(name, frame)
-            message = ocr_vehicle(name)
-            os.remove(name)
-            if len(message) > 0:
-                return message
+        if ret:
+            if currentframe % 24 == 0:
+                name = 'frame' + str(currentframe) + '.jpg'
+                print ('Creating...' + name)
+                cv2.imwrite(name, frame)
+                message = ocr_vehicle(name)
+                os.remove(name)
+                if len(message) > 0:
+                    return message
             currentframe += 1
         else: 
             break 
@@ -72,9 +76,11 @@ def home():
 def uploaded():
     global file_process
     alert_message = process_frames(file_process)
+    video_file = file_process
+    print(alert_message)
     if alert_message != '':
-        return render_template('uploaded.html', msg=alert_message, video=file_process)
-    return render_template('uploaded.html', video=file_process)
+        return render_template('uploaded.html', msg=alert_message, video=video_file)
+    return render_template('uploaded.html', video=file_process, error='License plate not found')
 
 if __name__ == "__main__":
     app.run(debug=True)    
