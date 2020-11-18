@@ -46,8 +46,23 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>
     $(document).ready(function() {
-      var success_message = "{{ msg }}";
-      toastr.success(success_message);
+      try
+      {
+        var success_message = "{{ msg }}";
+        if (success_message.length > 0)
+        {
+          toastr.success(success_message);
+        }
+        else
+        {
+          toastr.error('License plate not detected');
+        }
+      }
+      catch
+      {
+        var error_msg = "{{error}}";
+        toastr.error(error_msg);
+      }
     });
   </script>
 
